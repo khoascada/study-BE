@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  age       Int?
+  address   String?
+  password  String?
+  createdAt DateTime  @default(now())
+  products  Product[]
+  orders    Order[]
+  reviews   Review[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  price       Float
+  stock       Int       @default(0)
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  categories  Category[] @relation("ProductCategories")
+  orders      Order[]
+  reviews     Review[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  description String?
+  createdAt DateTime  @default(now())
+  products  Product[] @relation("ProductCategories")
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  quantity  Int
+  status    String      @default("pending")  // pending, completed, cancelled
+  createdAt DateTime    @default(now())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product     @relation(fields: [productId], references: [id])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int      // 1 - 5
+  comment   String?
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+}
