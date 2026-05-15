@@ -1,8 +1,6 @@
-import prisma from '../src/prisma';
+import prisma from "../src/prisma";
 
 async function main() {
-  console.log("Seeding data...");
-
   // Xoá dữ liệu cũ theo thứ tự đúng để tránh lỗi khoá ngoại
   await prisma.review.deleteMany();
   await prisma.order.deleteMany();
@@ -44,19 +42,21 @@ async function main() {
     const randomUser = users[Math.floor(Math.random() * users.length)];
     const randomCategory1 = categories[Math.floor(Math.random() * categories.length)];
     const randomCategory2 = categories[Math.floor(Math.random() * categories.length)];
-    const categoryIds = [...new Set([randomCategory1.id, randomCategory2.id])].map(id => ({ id }));
+    const categoryIds = [...new Set([randomCategory1.id, randomCategory2.id])].map((id) => ({
+      id,
+    }));
 
     const product = await prisma.product.create({
       data: {
         name: `Product ${i}`,
-        price: Math.floor(Math.random() * 100) * 1000 + 10000, 
+        price: Math.floor(Math.random() * 100) * 1000 + 10000,
         stock: Math.floor(Math.random() * 50) + 1, // Random tồn kho 1-50
         description: `Mô tả sản phẩm ${i} tuyệt vời`,
         isActive: Math.random() > 0.2, // 80% là active
         userId: randomUser.id,
         categories: {
-          connect: categoryIds
-        }
+          connect: categoryIds,
+        },
       },
     });
     products.push(product);
@@ -68,14 +68,14 @@ async function main() {
   for (let i = 1; i <= 10; i++) {
     const randomUser = users[Math.floor(Math.random() * users.length)];
     const randomProduct = products[Math.floor(Math.random() * products.length)];
-    
+
     await prisma.order.create({
       data: {
         quantity: Math.floor(Math.random() * 5) + 1, // Mua 1-5 sản phẩm
         status: orderStatuses[Math.floor(Math.random() * orderStatuses.length)],
         userId: randomUser.id,
         productId: randomProduct.id,
-      }
+      },
     });
   }
   console.log("Created 10 orders.");
@@ -84,14 +84,14 @@ async function main() {
   for (let i = 1; i <= 10; i++) {
     const randomUser = users[Math.floor(Math.random() * users.length)];
     const randomProduct = products[Math.floor(Math.random() * products.length)];
-    
+
     await prisma.review.create({
       data: {
         rating: Math.floor(Math.random() * 5) + 1, // Đánh giá 1-5 sao
         comment: `Sản phẩm này rất tốt, đánh giá lần thứ ${i}!`,
         userId: randomUser.id,
         productId: randomProduct.id,
-      }
+      },
     });
   }
   console.log("Created 10 reviews.");

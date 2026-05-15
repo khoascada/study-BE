@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getUsers, getUserById, createUser, updateUser, deleteUser } from "../controllers/user.controller";
+import {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../controllers/user.controller";
 import { validate } from "../middlewares/validate";
 import { createUserSchema } from "../schemas/user.schema";
 const router = Router();
