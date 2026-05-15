@@ -1,4 +1,5 @@
 import { env } from "@/config/env";
+import redis from "@/config/redis";
 import authRouter from "@/routes/auth.router";
 import userRouter from "@/routes/user.router";
 // import productRouter from "@/routes/product.router";
@@ -43,6 +44,11 @@ app.use("/auth", authRouter);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
-app.listen(env.PORT, () => {
-  console.log(`Server running on http://localhost:${env.PORT}`);
-});
+async function start() {
+  await redis.connect();
+  app.listen(env.PORT, () => {
+    console.log(`Server running on http://localhost:${env.PORT}`);
+  });
+}
+
+start();
