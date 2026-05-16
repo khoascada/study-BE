@@ -14,7 +14,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "script:redis-test": "ts-node -r tsconfig-paths/register src/scripts/redis-test.ts"
   },
   "keywords": [],
   "author": "",

@@ -3,13 +3,14 @@ import redis from "@/config/redis";
 import authRouter from "@/routes/auth.router";
 import userRouter from "@/routes/user.router";
 // import productRouter from "@/routes/product.router";
+import { errorMiddleware } from "@/middlewares/error.middleware";
+import { notFoundMiddleware } from "@/middlewares/not-found.middleware";
+import { requestIdMiddleware } from "@/middlewares/request-id.middleware";
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import { requestIdMiddleware } from "@/middlewares/request-id.middleware";
-import { notFoundMiddleware } from "@/middlewares/not-found.middleware";
-import { errorMiddleware } from "@/middlewares/error.middleware";
+import { requireAuth } from "./middlewares/auth.middleware";
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
@@ -37,7 +38,7 @@ app.get("/", (_req, res) => {
   res.json({ message: "Prisma Practice API" });
 });
 
-app.use("/users", userRouter);
+app.use("/users", requireAuth, userRouter);
 app.use("/auth", authRouter);
 // app.use('/products', productRouter)
 

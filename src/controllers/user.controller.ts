@@ -10,6 +10,7 @@ import {
 import { sendSuccess } from "@/utils/response";
 
 export const getUsers = async (_req: Request, res: Response) => {
+  console.log("user info:", _req.user);
   const users = await getAllUsers();
   sendSuccess(res, users);
 };

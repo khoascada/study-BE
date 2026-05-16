@@ -7,10 +7,7 @@ interface PrismaErrorMessages {
   recordNotFound?: string;
 }
 
-export const handlePrismaError = (
-  error: unknown,
-  messages: PrismaErrorMessages = {},
-): never => {
+export const handlePrismaError = (error: unknown, messages: PrismaErrorMessages = {}): never => {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT)
       throw new ConflictError(messages.uniqueConstraint ?? "Resource already exists");

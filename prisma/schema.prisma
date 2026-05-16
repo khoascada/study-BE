@@ -19,10 +19,13 @@ model User {
   address   String?
   password  String?
   createdAt DateTime  @default(now())
+  role String @default("USER")
+  emailVerified Boolean @default(false)
   products  Product[]
   orders    Order[]
   reviews   Review[]
 }
+
 
 model Product {
   id          Int       @id @default(autoincrement())

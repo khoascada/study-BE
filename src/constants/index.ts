@@ -12,3 +12,13 @@ export const COOKIE = {
 export const BCRYPT = {
   SALT_ROUNDS: 10,
 } as const;
+
+export const TOKEN_TTL = {
+  ACCESS: 15 * 60, // 15 phút (giây)
+  REFRESH: 7 * 24 * 3600, // 7 ngày (giây)
+} as const;
+
+export const REDIS_KEY = {
+  refreshToken: (userId: number, jti: string) => `refresh:${userId}:${jti}`,
+  blacklist: (jti: string) => `blacklist:${jti}`,
+} as const;

@@ -9,7 +9,14 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(6),
-  
+});
+
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string(),
+});
+
+export const logoutSchema = z.object({
+  refreshToken: z.string(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

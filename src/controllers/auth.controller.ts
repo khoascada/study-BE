@@ -1,8 +1,8 @@
-import type { Request, Response } from "express";
-import { register, login } from "@/services/auth.service";
-import { env } from "@/config/env";
-import { COOKIE } from "@/constants";
+import { login, logout, register, renewTokens } from "@/services/auth.service";
+import { UnauthorizedError } from "@/errors";
 import { sendSuccess } from "@/utils/response";
+import jwt from "jsonwebtoken";
+import type { Request, Response } from "express";
 
 export const registerController = async (req: Request, res: Response) => {
   const user = await register(req.body);
@@ -10,17 +10,28 @@ export const registerController = async (req: Request, res: Response) => {
 };
 
 export const loginController = async (req: Request, res: Response) => {
-  const { token, user } = await login(req.body);
-  res.cookie(COOKIE.TOKEN, token, {
-    httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: COOKIE.MAX_AGE,
-  });
-  sendSuccess(res, { user });
+  const { accessToken, refreshToken, user } = await login(req.body);
+  // TODO: chuyển sang cookie sau khi chốt strategy
+  sendSuccess(res, { accessToken, refreshToken, user });
 };
 
-export const logoutController = (_req: Request, res: Response) => {
-  res.clearCookie(COOKIE.TOKEN);
+export const logoutController = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const atJti = req.user?.jti;
+  const { refreshToken } = req.body;
+
+  if (!userId || !atJti) throw new UnauthorizedError("Unauthorized");
+
+  // tính TTL còn lại của AT để blacklist đúng thời gian
+  const atPayload = jwt.decode(req.headers.authorization!.slice(7)) as { exp: number } | null;
+  const atTtl = atPayload ? atPayload.exp - Math.floor(Date.now() / 1000) : 0;
+
+  await logout(userId, atJti, atTtl, refreshToken);
   sendSuccess(res, { message: "Logout successfully" });
+};
+
+export const refreshTokenController = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+  const result = await renewTokens(refreshToken);
+  sendSuccess(res, result);
 };
