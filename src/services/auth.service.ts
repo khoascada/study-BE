@@ -2,7 +2,7 @@ import { env } from "@/config/env";
 import redis from "@/config/redis";
 import { BCRYPT, REDIS_KEY, TOKEN_TTL } from "@/constants";
 import { ConflictError, UnauthorizedError } from "@/errors";
-import prisma from "@/prisma";
+import { userRepository } from "@/repositories/user.repository";
 import type { LoginInput, RegisterInput } from "@/schemas/auth.schema";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -26,11 +26,7 @@ export const signRefreshToken = (payload: { id: number }) => {
 
 export const register = async (data: RegisterInput) => {
   // check email exists
-  const existing = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
+  const existing = await userRepository.findByEmail(data.email);
 
   if (existing) {
     throw new ConflictError("Email already exists");
@@ -38,24 +34,19 @@ export const register = async (data: RegisterInput) => {
 
   const hashedPassword = await bcrypt.hash(data.password, BCRYPT.SALT_ROUNDS);
 
-  const user = await prisma.user.create({
-    data: {
-      email: data.email,
-      name: data.name,
-      password: hashedPassword,
-    },
-    select: { id: true, email: true, name: true }, // không trả về password
+  const user = await userRepository.create({
+    email: data.email,
+    name: data.name,
+    password: hashedPassword,
   });
 
-  // return user + token
-  return user;
+  // không trả về password
+  return { id: user.id, email: user.email, name: user.name };
 };
 
 export const login = async (data: LoginInput) => {
   // tìm user theo email
-  const user = await prisma.user.findUnique({
-    where: { email: data.email },
-  });
+  const user = await userRepository.findByEmail(data.email);
   if (!user || !user.password) throw new UnauthorizedError("Invalid credentials");
 
   // so sánh password
@@ -98,7 +89,7 @@ export const renewTokens = async (refreshToken: string) => {
   if (!exists) throw new UnauthorizedError("Refresh token revoked");
 
   // lấy thông tin user để sign AT mới
-  const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+  const user = await userRepository.findById(decoded.id);
   if (!user) throw new UnauthorizedError("User not found");
 
   // rotation: xóa RT cũ

@@ -1,42 +1,13 @@
-import { handlePrismaError } from "@/errors/handle-prisma-error";
-import prisma from "@/prisma";
+import { userRepository } from "@/repositories/user.repository";
 
-export const getAllUsers = async () => {
-  return prisma.user.findMany({
-    select: { id: true, name: true, email: true },
-  });
-};
+export const getAllUsers = () => userRepository.findAll();
 
-export const getUserByIdService = async (id: number) => {
-  return prisma.user.findUnique({
-    where: { id },
-    include: { products: true },
-  });
-};
+export const getUserByIdService = (id: number) => userRepository.findById(id);
 
-export const createUserService = async (
-  name: string,
-  email: string,
-  age: number,
-  address: string,
-) => {
-  return prisma.user
-    .create({ data: { name, email, age, address } })
-    .catch((e) => handlePrismaError(e, { uniqueConstraint: "Email already exists" }));
-};
+export const createUserService = (name: string, email: string, age: number, address: string) =>
+  userRepository.create({ name, email, age, address });
 
-export const updateUserService = async (
-  id: number,
-  name: string,
-  email: string,
-  age: number,
-  address: string,
-) => {
-  return prisma.user
-    .update({ where: { id }, data: { name, email, age, address } })
-    .catch((e) => handlePrismaError(e, { recordNotFound: "Không tìm thấy ai hết!" }));
-};
+export const updateUserService = (id: number, name: string, email: string, age: number, address: string) =>
+  userRepository.update(id, { name, email, age, address });
 
-export const deleteUserService = async (id: number) => {
-  return prisma.user.delete({ where: { id } }).catch(handlePrismaError);
-};
+export const deleteUserService = (id: number) => userRepository.delete(id);
