@@ -2,13 +2,13 @@ import redis from "@/config/redis";
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { REDIS_KEY } from "../constants";
+import { AUTH, REDIS_KEY } from "../constants";
 import { UnauthorizedError } from "../errors";
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   // lấy token (AT + RT)
   const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const token = authHeader?.startsWith(AUTH.BEARER_PREFIX) ? authHeader.slice(AUTH.BEARER_PREFIX.length) : null;
   if (!token) throw new UnauthorizedError("No token provided");
 
   // decode

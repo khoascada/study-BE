@@ -1,12 +1,13 @@
 import { env } from "@/config/env";
 import redis from "@/config/redis";
-import { BCRYPT, REDIS_KEY, TOKEN_TTL } from "@/constants";
+import { BCRYPT, REDIS_KEY, ROLES, TOKEN_TTL } from "@/constants";
 import { ConflictError, UnauthorizedError } from "@/errors";
 import { userRepository } from "@/repositories/user.repository";
 import type { LoginInput, RegisterInput } from "@/schemas/auth.schema";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
+import { toRegisterDto } from "../dtos/auth.dto";
 
 export const signAccessToken = (payload: { id: number; email: string; role: string }) => {
   const jti = randomUUID();
@@ -41,7 +42,7 @@ export const register = async (data: RegisterInput) => {
   });
 
   // không trả về password
-  return { id: user.id, email: user.email, name: user.name };
+  return toRegisterDto(user);
 };
 
 export const login = async (data: LoginInput) => {
@@ -53,13 +54,13 @@ export const login = async (data: LoginInput) => {
   const isMatch = await bcrypt.compare(data.password, user.password);
   if (!isMatch) throw new UnauthorizedError("Invalid credentials");
 
-  const { token: accessToken } = signAccessToken({ id: user.id, email: user.email, role: "USER" });
+  const { token: accessToken } = signAccessToken({ id: user.id, email: user.email, role: ROLES.USER });
   const { token: refreshToken, jti: rt_jti } = signRefreshToken({ id: user.id });
 
   // redis RT
   await redis.setex(REDIS_KEY.refreshToken(user.id, rt_jti), TOKEN_TTL.REFRESH, "1");
 
-  return { accessToken, refreshToken, user: { id: user.id, email: user.email, name: user.name } };
+  return { accessToken, refreshToken, user: toRegisterDto(user) };
 };
 
 export const logout = async (
@@ -99,7 +100,7 @@ export const renewTokens = async (refreshToken: string) => {
   const { token: newAccessToken } = signAccessToken({
     id: user.id,
     email: user.email,
-    role: "USER",
+    role: user.role,
   });
   const { token: newRefreshToken, jti: newRtJti } = signRefreshToken({ id: user.id });
 

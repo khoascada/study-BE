@@ -1,8 +1,9 @@
 import { env } from "@/config/env";
+import { RATE_LIMIT } from "@/constants";
 import redis from "@/config/redis";
 import authRouter from "@/routes/auth.router";
 import userRouter from "@/routes/user.router";
-// import productRouter from "@/routes/product.router";
+import productRouter from "@/routes/product.router";
 import { errorMiddleware } from "@/middlewares/error.middleware";
 import { notFoundMiddleware } from "@/middlewares/not-found.middleware";
 import { requestIdMiddleware } from "@/middlewares/request-id.middleware";
@@ -13,13 +14,12 @@ import helmet from "helmet";
 import { requireAuth } from "./middlewares/auth.middleware";
 
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 phút
-  max: 100, // tối đa 100 request / 15 phút / IP
+  ...RATE_LIMIT.GLOBAL,
   message: {
     error: "Too many requests, please try again later.",
   },
-  standardHeaders: true, // Trả về info trong header `RateLimit-*`
-  legacyHeaders: false, // Tắt header `X-RateLimit-*` cũ
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const app = express();
@@ -40,7 +40,7 @@ app.get("/", (_req, res) => {
 
 app.use("/users", requireAuth, userRouter);
 app.use("/auth", authRouter);
-// app.use('/products', productRouter)
+app.use('/products', productRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

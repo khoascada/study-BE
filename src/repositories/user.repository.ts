@@ -2,10 +2,16 @@ import { handlePrismaError } from "@/errors/handle-prisma-error";
 import prisma from "@/prisma";
 
 export const userRepository = {
-  findAll() {
+  findAll(args?: { skip?: number; take?: number; orderBy?: Record<string, "asc" | "desc"> }) {
     return prisma.user.findMany({
-      select: { id: true, name: true, email: true },
+      skip: args?.skip,
+      take: args?.take,
+      orderBy: args?.orderBy,
     });
+  },
+
+  count() {
+    return prisma.user.count();
   },
 
   findById(id: number) {

@@ -24,9 +24,9 @@ async function main() {
   console.log("EXISTS test:greetings →", exists); // 1 = có, 0 = không
 
   // DEL
-  await redis.del("test:greeting");
-  const afterDel = await redis.get("test:greeting");
-  console.log("After DEL, GET test:greeting →", afterDel); // null
+  // await redis.del("test:greeting");
+  // const afterDel = await redis.get("test:greeting");
+  // console.log("After DEL, GET test:greeting →", afterDel); // null
 
   await redis.quit();
 }

@@ -11,13 +11,13 @@ import {
   refreshTokenSchema,
   registerSchema,
 } from "@/schemas/auth.schema";
+import { RATE_LIMIT } from "@/constants";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { requireAuth } from "../middlewares/auth.middleware";
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 phút
-  max: 10, // tối đa 10 lần / 15 phút / IP
+  ...RATE_LIMIT.AUTH,
   message: { error: "Too many attempts, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,

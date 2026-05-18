@@ -1,14 +1,15 @@
+import { AUTH } from "@/constants";
 import z from "zod";
 
 export const registerSchema = z.object({
   email: z.email(),
-  password: z.string().min(6),
-  name: z.string().min(2).optional(),
+  password: z.string().min(AUTH.PASSWORD_MIN_LENGTH),
+  name: z.string().min(AUTH.NAME_MIN_LENGTH).optional(),
 });
 
 export const loginSchema = z.object({
   email: z.email(),
-  password: z.string().min(6),
+  password: z.string().min(AUTH.PASSWORD_MIN_LENGTH),
 });
 
 export const refreshTokenSchema = z.object({
