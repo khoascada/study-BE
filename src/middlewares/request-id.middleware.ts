@@ -1,3 +1,4 @@
+import { runWithContext } from "@/utils/context";
 import type { NextFunction, Request, Response } from "express";
 
 export const requestIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -6,5 +7,5 @@ export const requestIdMiddleware = (req: Request, res: Response, next: NextFunct
   req.requestId = requestId;
   res.setHeader("x-request-id", requestId);
 
-  next();
+  runWithContext({ requestId }, () => next());
 };

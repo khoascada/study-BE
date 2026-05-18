@@ -1,8 +1,8 @@
-import { login, logout, register, renewTokens } from "@/services/auth.service";
 import { UnauthorizedError } from "@/errors";
+import { login, logout, register, renewTokens } from "@/services/auth.service";
 import { sendSuccess } from "@/utils/response";
-import jwt from "jsonwebtoken";
 import type { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
 export const registerController = async (req: Request, res: Response) => {
   const user = await register(req.body);

@@ -1,9 +1,10 @@
 import { env } from "@/config/env";
+import logger from "@/config/logger";
 import { AppError } from "@/errors";
 import type { NextFunction, Request, Response } from "express";
 
 export const errorMiddleware = (err: Error, req: Request, res: Response, _next: NextFunction) => {
-  console.error(`[${req.requestId}]`, err);
+  logger.error({ requestId: req.requestId, err }, "Unhandled error");
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

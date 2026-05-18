@@ -1,5 +1,9 @@
 import "dotenv/config";
+import pino from "pino";
 import { z } from "zod";
+
+// Minimal bootstrap logger — cannot import from logger.ts (circular: logger → env → logger)
+const bootLogger = pino({ transport: { target: "pino-pretty", options: { colorize: true } } });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
@@ -14,8 +18,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error("Invalid environment variables:");
-  console.error(JSON.stringify(parsed.error, null, 2));
+  bootLogger.error({ errors: parsed.error.flatten().fieldErrors }, "Invalid environment variables");
   process.exit(1);
 }
 
